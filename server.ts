@@ -1,6 +1,9 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function startServer() {
   const app = express();
@@ -17,6 +20,7 @@ async function startServer() {
   app.post("/api/verify-recaptcha", async (req, res) => {
     const { token } = req.body;
     const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+    console.log("reCAPTCHA Secret Key present:", !!secretKey);
 
     if (!token) {
       return res.status(400).json({ success: false, message: "Token is required" });
@@ -27,6 +31,7 @@ async function startServer() {
         method: "POST",
       });
       const data: any = await response.json();
+      console.log("reCAPTCHA Google Response:", data);
       res.json(data);
     } catch (error) {
       console.error("reCAPTCHA verification error:", error);

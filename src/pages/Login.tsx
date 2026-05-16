@@ -64,7 +64,7 @@ export default function Login() {
               required
             />
             <div className="text-right mt-1">
-              <Link to="/forgot-password" async className="text-[10px] font-black uppercase text-gray-400 hover:text-black hover:underline">Lost Secret?</Link>
+              <Link to="/forgot-password" className="text-[10px] font-black uppercase text-gray-400 hover:text-black hover:underline">Lost Secret?</Link>
             </div>
           </div>
           
