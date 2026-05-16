@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", "Inter", sans-serif;
+  
+  --color-primary: #3b82f6; /* Blue */
+  --color-secondary: #a855f7; /* Purple */
+  --color-accent: #22c55e; /* Green Neon */
+  --color-warning: #eab308; /* Yellow */
+}
+
+@layer base {
+  body {
+    @apply bg-white text-black font-sans antialiased selection:bg-black selection:text-white;
+  }
+}
+
+@layer components {
+  .neo-card {
+    @apply bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)];
+  }
+
+  .neo-btn {
+    @apply bg-black text-white px-6 py-3 font-bold border-4 border-black shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] hover:bg-white hover:text-black transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+  }
+
+  .neo-btn-primary {
+    @apply bg-primary text-white px-6 py-3 font-bold border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all active:translate-x-[4px] active:translate-y-[4px];
+  }
+
+  .neo-input {
+    @apply w-full p-3 border-4 border-black bg-white focus:outline-none focus:ring-4 focus:ring-primary/20 placeholder:text-gray-400 font-medium;
+  }
+
+  .geometric-bg {
+    background-image: 
+      radial-gradient(circle at 2px 2px, black 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap');
+

@@ -1,0 +1,6 @@
+{
+  "name": "SAKTI: Sistem Akademik Terpadu & Integratif",
+  "description": "Sistem Akademik Modern dengan desain Bold Geometric. Mendukung role Mahasiswa dan Dosen dengan fitur manajemen data akademik dan verifikasi email.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

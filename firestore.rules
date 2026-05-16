@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Common Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isRole(role) {
+      return isVerified() && getRole() == role;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User Collection
+    match /users/{userId} {
+      function isValidUser(data) {
+        return data.email is string && data.email.size() <= 200 &&
+               data.role in ['mahasiswa', 'dosen'] &&
+               data.keys().hasAll(['email', 'role', 'status', 'createdAt']) &&
+               data.keys().size() == 4;
+      }
+
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && userId == request.auth.uid && isValidUser(incoming()) && incoming().email == request.auth.token.email;
+      allow update: if isSignedIn() && userId == request.auth.uid && 
+                    incoming().diff(existing()).affectedKeys().hasOnly(['status']) &&
+                    isValidUser(incoming());
+    }
+
+    // Mahasiswa Collection
+    match /mahasiswas/{mahasiswaId} {
+      function isValidMahasiswa(data) {
+        return data.nama is string && data.nama.size() <= 200 &&
+               data.nim is string && data.nim.size() <= 20 &&
+               data.nomorTelepon is string && data.nomorTelepon.size() <= 20 &&
+               data.email is string && data.email.size() <= 200 &&
+               data.userId == request.auth.uid &&
+               data.keys().hasAll(['nama', 'nim', 'alamat', 'nomorTelepon', 'kelas', 'email', 'userId', 'updatedAt']) &&
+               data.keys().size() == 8;
+      }
+
+      allow list: if isRole('dosen') || (isRole('mahasiswa') && resource.data.userId == request.auth.uid);
+      allow get: if isRole('dosen') || (isRole('mahasiswa') && resource.data.userId == request.auth.uid);
+      
+      allow create: if isRole('mahasiswa') && isValidMahasiswa(incoming()) && mahasiswaId == request.auth.uid; // One profile per user, ID by UID
+      
+      allow update: if (isRole('mahasiswa') && resource.data.userId == request.auth.uid && isValidMahasiswa(incoming())) ||
+                    (isRole('dosen') && incoming().diff(existing()).affectedKeys().hasOnly(['nama', 'nim', 'alamat', 'nomorTelepon', 'kelas', 'email', 'updatedAt']));
+      
+      allow delete: if isRole('dosen');
+    }
+  }
+}
