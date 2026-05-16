@@ -1,10 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { Card, Button } from '../components/ui/Base';
-import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -15,34 +14,16 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) return setError("Passwords don't match");
-    if (!captchaToken) return setError("Please verify you are not a robot");
     
     setLoading(true);
     setError('');
     
     try {
-      // Backend verification
-      const verifyRes = await fetch('/api/verify-recaptcha', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: captchaToken }),
-      });
-      const verifyData = await verifyRes.json();
-
-      if (!verifyData.success) {
-        setLoading(false);
-        recaptchaRef.current?.reset();
-        setCaptchaToken(null);
-        return setError("reCAPTCHA verification failed. Please try again.");
-      }
-
       const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
       const user = userCredential.user;
 
@@ -136,15 +117,6 @@ export default function Register() {
                 required
               />
             </div>
-          </div>
-
-          {/* Google reCAPTCHA */}
-          <div className="flex justify-center py-2 relative z-10">
-            <ReCAPTCHA
-              ref={recaptchaRef}
-              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"} 
-              onChange={(token) => setCaptchaToken(token)}
-            />
           </div>
 
           <Button type="submit" variant="black" className="w-full" disabled={loading}>
